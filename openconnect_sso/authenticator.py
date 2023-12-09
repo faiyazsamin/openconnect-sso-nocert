@@ -54,8 +54,8 @@ class Authenticator:
 
     def _detect_authentication_target_url(self):
         # Follow possible redirects in a GET request
-        # Authentication will occur using a POST request on the final URL
-        response = requests.get(self.host.vpn_url)
+        # Authentication will occcur using a POST request on the final URL
+        response = requests.get(self.host.vpn_url,verify=False)
         response.raise_for_status()
         self.host.address = response.url
         logger.debug("Auth target url", url=self.host.vpn_url)
@@ -63,7 +63,7 @@ class Authenticator:
     def _start_authentication(self):
         request = _create_auth_init_request(self.host, self.host.vpn_url, self.version)
         logger.debug("Sending auth init request", content=request)
-        response = self.session.post(self.host.vpn_url, request)
+        response = self.session.post(self.host.vpn_url, request,verify=False)
         logger.debug("Auth init response received", content=response.content)
         return parse_response(response)
 
@@ -77,7 +77,7 @@ class Authenticator:
             self.host, auth_request_response, sso_token, self.version
         )
         logger.debug("Sending auth finish request", content=request)
-        response = self.session.post(self.host.vpn_url, request)
+        response = self.session.post(self.host.vpn_url, request,verify=False)
         logger.debug("Auth finish response received", content=response.content)
         return parse_response(response)
 
