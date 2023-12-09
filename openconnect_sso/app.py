@@ -31,6 +31,7 @@ def run(args):
 
     try:
         if os.name == "nt":
+            logger.debug("DhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukseDhukse")
             asyncio.set_event_loop(asyncio.ProactorEventLoop())
         auth_response, selected_profile = asyncio.get_event_loop().run_until_complete(
             _run(args, cfg)
@@ -184,29 +185,20 @@ def authenticate_to(host, proxy, credentials, display_mode, version):
 
 
 def run_openconnect(auth_info, host, proxy, version, args):
-    as_root = next(([prog] for prog in ("doas", "sudo") if shutil.which(prog)), [])
-    try:
-        if not as_root:
-            if os.name == "nt":
-                import ctypes
-
-                if not ctypes.windll.shell32.IsUserAnAdmin():
-                    raise PermissionError
-            else:
-                raise PermissionError
-    except PermissionError:
+    as_root = next((prog for prog in ("doas", "sudo") if shutil.which(prog)), None)
+    if not as_root:
         logger.error(
             "Cannot find suitable program to execute as superuser (doas/sudo), exiting"
         )
         return 20
 
-    command_line = as_root + [
+    command_line = [
+        as_root,
         "openconnect",
         "--useragent",
         f"AnyConnect Linux_64 {version}",
-        "--version-string",
-        version,
-        "--cookie-on-stdin",
+        "--cookie",
+        auth_info.session_token,
         "--servercert",
         auth_info.server_cert_hash,
         *args,
@@ -217,7 +209,7 @@ def run_openconnect(auth_info, host, proxy, version, args):
 
     session_token = auth_info.session_token.encode("utf-8")
     logger.debug("Starting OpenConnect", command_line=command_line)
-    return subprocess.run(command_line, input=session_token).returncode
+    return subprocess.run(command_line).returncode
 
 
 def handle_disconnect(command):
