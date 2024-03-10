@@ -108,6 +108,13 @@ Password (user@domain.com):
 User credentials are automatically saved to the users login keyring (if
 available).
 
+Setting keyring:
+```shell
+import keyring as kr
+print(kr.get_password("openconnect-sso","username"))
+kr.set_password("openconnect-sso","username","password")
+```
+
 If you already have Cisco AnyConnect set-up, then `--server` argument is
 optional. Also, the last used `--server` address is saved between sessions so
 there is no need to always type in the same arguments:
